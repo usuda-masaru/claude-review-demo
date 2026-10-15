@@ -12,16 +12,19 @@ function total(items) {
   return Math.round(subtotal(items) * (1 + TAX_RATE));
 }
 
-// 数量を変更する
+// 数量を変更する（0以上の整数だけ受け付ける）
 function setQty(item, qty) {
+  if (!Number.isInteger(qty) || qty < 0) {
+    throw new RangeError("qty は0以上の整数で指定してください");
+  }
   item.qty = qty;
 }
 
-// クーポンを使った合計金額
+// クーポンを使った合計金額（無効なコードは割引なし）
 function totalWithCoupon(items, code) {
-  const rate = COUPONS[code];
-  const discount = (subtotal(items) * rate) / 100;
-  return Math.round((subtotal(items) - discount) * (1 + TAX_RATE));
+  const rate = Object.hasOwn(COUPONS, code) ? COUPONS[code] : 0;
+  const sub = subtotal(items);
+  return Math.round((sub - (sub * rate) / 100) * (1 + TAX_RATE));
 }
 
 module.exports = { subtotal, total, setQty, totalWithCoupon };
